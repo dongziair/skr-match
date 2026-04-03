@@ -1,0 +1,38 @@
+[
+  {
+    "wallet": "Bt3uN1g7hdznAjkF9K8UpNWABQdGx99sfwgMRWFzVxeB",
+    "domain": "xiaoman.skr",
+    "level": 2,
+    "remove3": 1,
+    "undo": 1,
+    "shuffle": 1,
+    "lastSpinAt": 0
+  },
+  {
+    "wallet": "8iC8yDk4S8rXbUrmow5qo9py2pCoaSpmn6VZxCW8W3mv",
+    "domain": "",
+    "level": 4,
+    "remove3": 8,
+    "undo": 1,
+    "shuffle": 0,
+    "lastSpinAt": 1774957056224
+  },
+  {
+    "wallet": "2aMKnHfhhNUTxBXuULD99e2iCDW2ri1k3FR8wKq9GMKv",
+    "domain": "lvmanman.skr",
+    "level": 15,
+    "remove3": 1,
+    "undo": 0,
+    "shuffle": 0,
+    "lastSpinAt": 1774957577589
+  },
+  {
+    "wallet": "2xXqH7WPUVmCNFkuPTJMhjVHFat9UntASMHJGZSUJEWY",
+    "domain": "dongair.skr",
+    "level": 1,
+    "remove3": 0,
+    "undo": 0,
+    "shuffle": 0,
+    "lastSpinAt": 0
+  }
+]

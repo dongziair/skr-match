@@ -1,0 +1,261 @@
+@import "tailwindcss";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #0a0e1a;
+  color: #e0e6f0;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  min-height: 100dvh;
+  width: 100vw;
+}
+
+#root {
+  min-height: 100dvh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+}
+
+/* ============ Cyberpunk / Web3 色彩系统 ============ */
+:root {
+  --skr-primary: #00ffaa;
+  --skr-primary-dim: #00cc82;
+  --skr-accent: #7c3aed;
+  --skr-accent-bright: #a78bfa;
+  --skr-glow: rgba(0, 255, 170, 0.12);
+  --skr-glow-strong: rgba(0, 255, 170, 0.25);
+  --skr-surface: rgba(15, 23, 42, 0.85);
+  --skr-surface-light: rgba(30, 41, 59, 0.7);
+  --skr-glass: rgba(255, 255, 255, 0.05);
+  --skr-glass-border: rgba(255, 255, 255, 0.08);
+  --skr-border: rgba(255, 255, 255, 0.08);
+  --skr-text: #e0e6f0;
+  --skr-text-dim: #94a3b8;
+  --skr-danger: #ef4444;
+  --skr-warning: #f59e0b;
+}
+
+.wallet-adapter-button {
+  font-size: 13px !important;
+  height: 40px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, rgba(0,255,170,0.15), rgba(124,58,237,0.15)) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  color: #e0e6f0 !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+/* ============ 动画 ============ */
+@keyframes blockPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.85); }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+@keyframes matchFlash {
+  0% { box-shadow: 0 0 0 0 rgba(0, 255, 170, 0.8); }
+  100% { box-shadow: 0 0 30px 15px rgba(0, 255, 170, 0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px var(--skr-glow); }
+  50% { box-shadow: 0 0 20px var(--skr-glow-strong); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes modalPop {
+  0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+  60% { transform: scale(1.01) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes gridFlow {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 40px; }
+}
+
+@keyframes neonPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.35s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-modal-pop {
+  animation: modalPop 0.3s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ============ 滚动条（深色） ============ */
+.custom-scroll::-webkit-scrollbar {
+  width: 3px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 4px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+/* ============ 游戏容器 ============ */
+.game-container {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 0 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============ 毛玻璃通用类 ============ */
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* ============ SKR 品牌按钮 ============ */
+.skr-btn {
+  background: linear-gradient(135deg, #00ffaa 0%, #00cc82 100%);
+  color: #0a0e1a;
+  font-weight: 700;
+  border: none;
+  border-radius: 14px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  box-shadow: 0 0 20px rgba(0, 255, 170, 0.2);
+}
+
+.skr-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 24px rgba(0, 255, 170, 0.35);
+}
+
+.skr-btn:active {
+  transform: translateY(0);
+}
+
+.skr-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.skr-btn-outline {
+  background: transparent;
+  color: var(--skr-primary);
+  border: 1.5px solid var(--skr-primary);
+  border-radius: 14px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.skr-btn-outline:hover {
+  background: var(--skr-glow);
+  box-shadow: 0 0 16px var(--skr-glow);
+}
+
+/* Token icon */
+.token-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.token-logo-sm {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+/* ============ 网格背景 ============ */
+.cyber-grid-bg {
+  background-image:
+    linear-gradient(rgba(0,255,170,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,170,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: gridFlow 8s linear infinite;
+}
+
+/* ============ 霓虹文字 ============ */
+.neon-text {
+  text-shadow: 0 0 10px rgba(0,255,170,0.5), 0 0 30px rgba(0,255,170,0.2);
+}
+
+.neon-text-purple {
+  text-shadow: 0 0 10px rgba(124,58,237,0.5), 0 0 30px rgba(124,58,237,0.2);
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
