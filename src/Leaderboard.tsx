@@ -45,7 +45,7 @@ export default function Leaderboard({ visible, onClose }: Props) {
         <div className="flex items-center justify-between px-5 py-5 border-b border-[#e0e0e0]">
           <div className="flex items-center gap-2.5">
             <Trophy size={24} className="text-amber-500" />
-            <h2 className="text-xl font-bold text-[#1a1a2e]">排行榜</h2>
+            <h2 className="text-xl font-bold text-[#1a1a2e]">Leaderboard</h2>
           </div>
           <button
             onClick={onClose}
@@ -59,7 +59,7 @@ export default function Leaderboard({ visible, onClose }: Props) {
         <div className="flex flex-col flex-1 overflow-y-auto p-4 gap-2">
           {entries.length === 0 ? (
             <div className="text-center py-16 text-[#999] text-base">
-              暂无排行数据，快来冲榜！
+              No leaderboard data yet. Start playing!
             </div>
           ) : (
             entries.map((entry, i) => {

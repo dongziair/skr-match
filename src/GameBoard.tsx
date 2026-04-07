@@ -318,7 +318,7 @@ export default function GameBoard() {
       // 尝试链上 memo 记录（静默失败，完全不阻塞）
       if (signTransaction) {
         saveProgressOnChain(connection, publicKey, signTransaction, level)
-          .then(() => showToast('✅ 进度已记录到链上!'))
+          .then(() => showToast('✅ Progress saved on-chain!'))
           .catch(() => { /* 链上记录失败不影响游戏 */ });
       }
     });
@@ -383,26 +383,26 @@ export default function GameBoard() {
         applyPowerUp(type);
         setInventory(getInventory(walletAddress));
         syncPlayerToServer(walletAddress, displayName);
-        showToast(`✅ 使用免费道具！`);
+        showToast(`✅ Used free power-up!`);
         return;
       }
 
       // 免费库存用完，需要链上付费
       if (!publicKey || !signTransaction) {
-        showToast('⚠️ 游客模式无法使用链上道具');
+        showToast('⚠️ Guest mode cannot use on-chain items');
         return;
       }
 
       const price = POWERUP_PRICES[type];
       if (skrBalance < price) {
-        showToast(`❌ SKR 余额不足，需要 ${price} $SKR`);
+        showToast(`❌ Insufficient SKR. Need ${price} $SKR`);
         return;
       }
 
       setTxLoading(true);
       try {
         await sendSkrPayment(connection, publicKey, signTransaction, type, level);
-        showToast(`✅ 已购买道具！消耗 ${price} $SKR`);
+        showToast(`✅ Purchased! Spent ${price} $SKR`);
 
         // 购买的道具入库（不立即使用，显示在库存中）
         addToInventory(walletAddress, type);
@@ -417,7 +417,7 @@ export default function GameBoard() {
         if (newSol.status === 'fulfilled') setBalance(newSol.value);
         if (newSkr.status === 'fulfilled') setSkrBalance(newSkr.value);
       } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : '支付失败';
+        const msg = err instanceof Error ? err.message : 'Payment failed';
         showToast(`❌ ${msg}`);
       } finally {
         setTxLoading(false);
@@ -488,10 +488,10 @@ export default function GameBoard() {
 
   // 难度文字
   const difficultyLabel = useMemo(() => {
-    if (level <= 5) return { text: '普通', color: '#4ECDC4' };
-    if (level <= 10) return { text: '困难', color: '#FFD93D' };
-    if (level <= 15) return { text: '噩梦', color: '#FF9800' };
-    return { text: '地狱', color: '#FF6B6B' };
+    if (level <= 5) return { text: 'Normal', color: '#4ECDC4' };
+    if (level <= 10) return { text: 'Hard', color: '#FFD93D' };
+    if (level <= 15) return { text: 'Nightmare', color: '#FF9800' };
+    return { text: 'Hell', color: '#FF6B6B' };
   }, [level]);
 
   // ---- 关卡选择 ----

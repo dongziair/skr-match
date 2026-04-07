@@ -63,7 +63,7 @@ export default function SpinWheel({ visible, onClose, wallet, onReward }: Props)
         <div className="flex items-center justify-between w-full mb-5">
           <div className="flex items-center gap-2.5">
             <Gift size={24} className="text-[#00cc82]" />
-            <h2 className="text-xl font-bold text-[#1a1a2e]">每日转盘</h2>
+            <h2 className="text-xl font-bold text-[#1a1a2e]">Daily Spin</h2>
           </div>
           <button
             onClick={onClose}
@@ -150,10 +150,10 @@ export default function SpinWheel({ visible, onClose, wallet, onReward }: Props)
         {result && (
           <div className="mb-4 text-center animate-fade-in-up">
             {result.type === 'none' ? (
-              <p className="text-[#999] text-base">😕 谢谢参与，明天再来！</p>
+              <p className="text-[#999] text-base">😕 Got nothing. Try again tomorrow!</p>
             ) : (
               <p className="text-base">
-                🎉 获得 <span className="font-bold" style={{ color: result.color }}>{result.label}</span> ×1！
+                🎉 Got <span className="font-bold" style={{ color: result.color }}>{result.label}</span> ×1 !
               </p>
             )}
           </div>
@@ -165,11 +165,11 @@ export default function SpinWheel({ visible, onClose, wallet, onReward }: Props)
           disabled={spinning || !canSpin}
           className="skr-btn w-full px-8 py-4 text-base font-bold disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {spinning ? '转动中...' : !canSpin ? '今日已转' : '开始转盘 🎰'}
+          {spinning ? 'Spinning...' : !canSpin ? 'Spun Today' : 'Start Spin 🎰'}
         </button>
 
         {!canSpin && !spinning && !result && (
-          <p className="text-sm text-[#999] mt-3">每天可免费转一次，明天再来吧！</p>
+          <p className="text-sm text-[#999] mt-3">Spin once every 24 hours. Come back tomorrow!</p>
         )}
       </div>
     </div>
