@@ -71,3 +71,4 @@ export default defineConfig([
   },
 ])
 ```
+Copyright (c) 2026 SKR Match. All rights reserved.
