@@ -1,49 +1,97 @@
 # Privacy Policy for SKR Match
 
-**Last Updated:** April 7, 2026
+**Last Updated:** April 24, 2026
 
-Welcome to **SKR Match**. This Privacy Policy explains how we collect, use, and handle information when you play our Solana-based match-3 puzzle game (the "dApp"). 
+SKR Match is a Solana-based match-3 puzzle game. This policy explains what data
+we collect, how we use it, how users can delete it, and what data cannot be
+deleted because it is stored on the public Solana blockchain.
 
-By connecting your wallet and interacting with our dApp, you agree to the collection and use of information in accordance with this Privacy Policy.
+## Information We Collect
 
-## 1. Information We Collect
+We collect the minimum data needed to run the game:
 
-As a decentralized application (dApp) built on the Solana blockchain, our focus is on your privacy and minimal data collection.
+- **Public wallet address:** used to identify your game profile, leaderboard
+  entry, inventory, and on-chain purchases.
+- **Game progress:** current level, completed levels, daily bonus timestamp, and
+  power-up inventory.
+- **Leaderboard display name:** a resolved `.skr` domain when available, or a
+  shortened wallet address.
+- **On-chain transaction data:** Solana transactions that you review and sign in
+  your wallet.
+- **Reports:** if a user reports a leaderboard name, we store the reported wallet,
+  displayed name, reason, reporter wallet when available, and report timestamp.
 
-*   **Public Wallet Address:** When you connect your Solana wallet (e.g., Phantom, Solflare), we securely read your public wallet address. This is required to identify your account, manage your in-game inventory, process SKR token transactions, and place you on the global leaderboard.
-*   **On-Chain Transactions:** Actions such as purchasing power-ups, claiming daily spins, and using SKR tokens are processed on the Solana public blockchain.
+## Information We Do Not Collect
 
-**What We Do NOT Collect:**
-*   We **DO NOT** collect or have access to your private keys or seed phrases under any circumstances.
-*   We **DO NOT** collect personally identifiable information (PII) such as your real name, physical address, email address, or phone number.
+SKR Match does not collect or request:
 
-## 2. How We Use the Information
+- Private keys, seed phrases, or wallet recovery phrases.
+- Real names, phone numbers, government IDs, payment cards, tax data, health
+  data, precise geolocation, biometric data, or other regulated data.
+- Data from children under the age required by applicable law without required
+  parental or guardian consent.
 
-We use the public data from your interactions solely to provide and improve the gaming experience:
-*   To enable core mechanics (e.g., matching gems, using tools, saving game progress).
-*   To authenticate your identity on the leaderboard and prevent Sybil attacks.
-*   To facilitate in-game automated transactions (token transfers).
+## How We Use Data
 
-## 3. Blockchain Visibility
+We use the data above to:
 
-Please be aware that due to the public nature of distributed ledger technology, all transactions, token transfers, and interactions associated with your wallet address on the Solana network are immutable, public, and stored permanently. We do not control this blockchain data and cannot erase or modify your transaction history.
+- Save and sync game progress.
+- Display the leaderboard.
+- Manage in-game power-up inventory and daily bonus eligibility.
+- Process user-initiated SKR token transfers for in-game power-ups.
+- Review reports about inappropriate leaderboard display names.
+- Prevent abuse, fraud, or unauthorized profile changes.
 
-## 4. Third-Party Services
+## Wallet Transactions
 
-Our dApp may interact with third-party Web3 infrastructure providers (e.g., RPC nodes like Helius or QuickNode, and ecosystem wallet adapters). Your interactions with these services are governed by their respective privacy policies. 
+Paid power-ups require a wallet-confirmed Solana Mainnet transaction. Before the
+wallet request is shown, SKR Match displays the item, amount, receiver, network,
+and non-refundable on-chain nature of the purchase. Users should always review
+the wallet transaction details before signing.
 
-## 5. Security
+On-chain Solana data is public, permanent, and outside SKR Match's control. We
+cannot delete, hide, or modify blockchain transaction history.
 
-We use industry-standard security measures suitable for a decentralized application. However, interacting with smart contracts and crypto assets inherently carries risks. You are responsible for the security of your own digital wallet.
+## User-Generated Content
 
-## 6. Children's Privacy
+Leaderboard display names may come from user-controlled `.skr` domains. Users can
+report inappropriate leaderboard names from inside the app and can hide a
+leaderboard entry locally on their device. Reported content may be reviewed and
+removed or replaced with a shortened wallet display.
 
-Our Service is not directed to anyone under the age of 13. We do not knowingly collect personally identifiable information from children under 13.
+## Third-Party Services
 
-## 7. Changes to This Privacy Policy
+SKR Match may use Solana wallets, Solana Mobile Wallet Adapter, RPC providers,
+Jupiter price APIs, and related Web3 infrastructure. These services may process
+public blockchain data or technical request data under their own policies.
 
-We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date.
+## Data Deletion
 
-## 8. Contact Us
+Users can delete their SKR Match profile from inside the app:
 
-If you have any questions about this Privacy Policy or our data practices, please reach out via our official communication channels (e.g., X/Twitter or Discord) or open an issue on our GitHub repository.
+1. Open **Privacy & Safety** from the top navigation.
+2. Choose **Delete Wallet Data**.
+3. Sign the wallet message confirming the deletion request.
+
+This deletes the server profile data associated with the wallet and clears local
+device data for SKR Match. Users can also choose **Clear Local Data Only** to
+remove local device data without deleting the server profile.
+
+Deletion does not remove public Solana blockchain history.
+
+## Security
+
+Deletion requests require a wallet-signed message. SKR Match does not have access
+to wallet private keys or seed phrases. Users are responsible for securing their
+own wallet and reviewing transactions before signing.
+
+## Contact
+
+For privacy, safety, leaderboard, or transaction concerns, contact:
+
+**support@skr-match.app**
+
+## Changes
+
+We may update this policy from time to time. Updates will be reflected by the
+"Last Updated" date above.

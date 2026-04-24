@@ -2,7 +2,6 @@ import WalletContextProvider from './WalletContextProvider';
 import SkrGate from './SkrGate';
 import Navbar from './Navbar';
 import GameBoard from './GameBoard';
-import BgMusic from './BgMusic';
 
 function App() {
   return (

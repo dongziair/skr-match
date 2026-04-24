@@ -1,12 +1,19 @@
 import { useWallet } from '@solana/wallet-adapter-react';
-import { Gamepad2, LogOut, Copy, Check, Hexagon, Wallet } from 'lucide-react';
+import { Gamepad2, LogOut, Copy, Check, Hexagon, Wallet, ShieldCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import BgMusic from './BgMusic';
+import LegalModal from './LegalModal';
+
+interface DomainResolvedDetail {
+  wallet?: string;
+  domain?: string;
+}
 
 export default function Navbar() {
   const { publicKey, disconnect } = useWallet();
   const [copied, setCopied] = useState(false);
   const [domainName, setDomainName] = useState<string | null>(null);
+  const [showLegal, setShowLegal] = useState(false);
 
   const shortenAddress = (addr: string) =>
     `${addr.slice(0, 4)}...${addr.slice(-4)}`;
@@ -27,9 +34,10 @@ export default function Navbar() {
     }
 
     // 监听 GameBoard 中发出的自定义事件
-    const handleDomainResolved = (e: any) => {
-      if (e.detail?.wallet === walletStr && e.detail?.domain) {
-        setDomainName(e.detail.domain);
+    const handleDomainResolved = (event: Event) => {
+      const detail = (event as CustomEvent<DomainResolvedDetail>).detail;
+      if (detail?.wallet === walletStr && detail.domain) {
+        setDomainName(detail.domain);
       }
     };
     
@@ -58,6 +66,7 @@ export default function Navbar() {
   };
 
   return (
+    <>
     <nav className="relative flex items-center justify-between w-full px-2 py-2.5 bg-[#0a0e1a]/80 backdrop-blur-md border-b border-[#00ffaa]/20 z-50 shadow-[0_4px_20px_rgba(0,255,170,0.1)] gap-2">
       {/* 顶部高光条 */}
       <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#00ffaa]/50 to-transparent"></div>
@@ -80,6 +89,13 @@ export default function Navbar() {
 
       {publicKey ? (
         <div className="flex items-center gap-1.5 min-w-0 flex-shrink-1">
+          <button
+            onClick={() => setShowLegal(true)}
+            className="p-1.5 rounded-md bg-[#0f172a]/80 border border-[#38bdf8]/25 text-[#38bdf8] hover:bg-[#38bdf8]/10 hover:border-[#38bdf8] transition-all duration-300 flex-shrink-0"
+            title="Privacy and safety"
+          >
+            <ShieldCheck size={14} />
+          </button>
           <button
             onClick={handleCopy}
             className="group relative flex items-center gap-1.5 bg-[#0f172a]/80 border border-[#00ffaa]/30 hover:border-[#00ffaa] px-2 py-1.5 rounded-md transition-all duration-300 active:scale-95 overflow-hidden min-w-0"
@@ -118,6 +134,13 @@ export default function Navbar() {
         </div>
       ) : (
         <div className="flex items-center gap-2 flex-shrink-0">
+          <button
+            onClick={() => setShowLegal(true)}
+            className="p-1.5 rounded-md bg-[#0f172a]/80 border border-[#38bdf8]/25 text-[#38bdf8] hover:bg-[#38bdf8]/10 hover:border-[#38bdf8] transition-all duration-300 flex-shrink-0"
+            title="Privacy and safety"
+          >
+            <ShieldCheck size={14} />
+          </button>
           <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-[#f59e0b]/10 text-[#f59e0b] border border-[#f59e0b]/20 whitespace-nowrap">
             Guest
           </span>
@@ -133,5 +156,7 @@ export default function Navbar() {
         </div>
       )}
     </nav>
+    <LegalModal visible={showLegal} onClose={() => setShowLegal(false)} />
+    </>
   );
 }

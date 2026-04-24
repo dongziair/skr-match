@@ -66,11 +66,33 @@ export function recordLevelComplete(wallet: string, level: number): void {
 
 const LEADERBOARD_KEY = 'skr_match_leaderboard';
 const MAX_LEADERBOARD = 20;
+const HIDDEN_PLAYERS_KEY = 'skr_match_hidden_players';
+
+export function getHiddenPlayers(): Set<string> {
+  try {
+    const raw = localStorage.getItem(HIDDEN_PLAYERS_KEY);
+    return new Set(raw ? JSON.parse(raw) as string[] : []);
+  } catch {
+    return new Set();
+  }
+}
+
+export function hideLeaderboardPlayer(wallet: string): void {
+  try {
+    const hidden = getHiddenPlayers();
+    hidden.add(wallet);
+    localStorage.setItem(HIDDEN_PLAYERS_KEY, JSON.stringify([...hidden]));
+  } catch {}
+}
 
 export function getLeaderboard(): LeaderboardEntry[] {
   try {
     const raw = localStorage.getItem(LEADERBOARD_KEY);
-    if (raw) return JSON.parse(raw) as LeaderboardEntry[];
+    if (raw) {
+      const hidden = getHiddenPlayers();
+      return (JSON.parse(raw) as LeaderboardEntry[])
+        .filter(entry => !hidden.has(entry.wallet));
+    }
   } catch {}
   return [];
 }
@@ -95,6 +117,76 @@ export function syncLeaderboardDisplayName(wallet: string, displayName: string):
   } catch {}
 }
 
+export async function reportLeaderboardPlayer(
+  reporterWallet: string,
+  reportedWallet: string,
+  displayName: string,
+): Promise<void> {
+  await fetch('/api/report', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      reporterWallet,
+      reportedWallet,
+      displayName,
+      reason: 'Inappropriate leaderboard display name',
+    }),
+  });
+}
+
+export function clearLocalPlayerData(wallet?: string): void {
+  try {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key) continue;
+      if (
+        key === LEADERBOARD_KEY ||
+        key === HIDDEN_PLAYERS_KEY ||
+        (!wallet && key.startsWith('skr_match_')) ||
+        (wallet && (
+          key === `skr_match_progress_${wallet}` ||
+          key === `skr_match_inventory_${wallet}` ||
+          key === `skr_match_spin_cooldown_${wallet}` ||
+          key === `skr_match_domain_${wallet}`
+        ))
+      ) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    sessionStorage.removeItem('skr_match_wallet_session');
+    sessionStorage.removeItem('skr_match_guest');
+  } catch {}
+}
+
+export async function deletePlayerData(wallet: string): Promise<void> {
+  await fetch(`/api/player/${wallet}`, { method: 'DELETE' });
+  clearLocalPlayerData(wallet);
+}
+
+export function getDeleteDataMessage(wallet: string): string {
+  return `SKR Match delete data request for wallet ${wallet}`;
+}
+
+export async function deletePlayerDataWithSignature(
+  wallet: string,
+  signature: Uint8Array,
+): Promise<void> {
+  const response = await fetch(`/api/player/${wallet}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      message: getDeleteDataMessage(wallet),
+      signature: Array.from(signature),
+    }),
+  });
+  if (!response.ok) {
+    throw new Error('Delete request was rejected');
+  }
+  clearLocalPlayerData(wallet);
+}
+
 // ---- 道具库存 ----
 
 const inventoryKey = (wallet: string) => `skr_match_inventory_${wallet}`;
@@ -114,7 +206,7 @@ function saveInventory(wallet: string, inv: PowerUpInventory): void {
   } catch {}
 }
 
-export function useFromInventory(wallet: string, type: keyof PowerUpInventory): boolean {
+export function consumeInventoryItem(wallet: string, type: keyof PowerUpInventory): boolean {
   const inv = getInventory(wallet);
   if (inv[type] <= 0) return false;
   inv[type]--;
@@ -343,6 +435,7 @@ export async function fetchServerLeaderboard(): Promise<LeaderboardEntry[]> {
     const res = await fetch('/api/players');
     if (!res.ok) return [];
     const players: Record<string, unknown>[] = await res.json();
+    const hidden = getHiddenPlayers();
     return players
       .map(p => ({
         wallet: String(p.wallet || ''),
@@ -350,6 +443,7 @@ export async function fetchServerLeaderboard(): Promise<LeaderboardEntry[]> {
         level: Number(p.level) || 1,
         lastPlayedAt: 0,
       }))
+      .filter(entry => entry.wallet && !hidden.has(entry.wallet))
       .sort((a, b) => b.level - a.level);
   } catch {
     return [];

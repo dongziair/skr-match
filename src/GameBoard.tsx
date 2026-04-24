@@ -21,9 +21,9 @@ import {
 } from './GameLogic';
 import {
   sendSkrPayment,
-  getWalletBalance,
   getSkrBalance,
   POWERUP_PRICES,
+  SKR_RECEIVER,
 } from './TransactionHandler';
 import {
   getLocalProgress,
@@ -32,7 +32,7 @@ import {
   syncLeaderboardDisplayName,
   saveProgressOnChain,
   getInventory,
-  useFromInventory,
+  consumeInventoryItem,
   addToInventory,
   syncPlayerFromServer,
   syncPlayerToServer,
@@ -54,6 +54,8 @@ import {
   Crown,
   RefreshCw,
   Layers,
+  AlertTriangle,
+  X,
 } from 'lucide-react';
 
 // ============ 常量 ============
@@ -135,7 +137,6 @@ export default function GameBoard() {
   const [showLevelSelect, setShowLevelSelect] = useState(false);
 
   // ---- 钱包 & 用户 ----
-  const [balance, setBalance] = useState(0);
   const [skrBalance, setSkrBalance] = useState(0);
   const [displayName, setDisplayName] = useState('');
   const [inventory, setInventory] = useState<PowerUpInventory>({ remove3: 0, undo: 0, shuffle: 0 });
@@ -145,6 +146,7 @@ export default function GameBoard() {
   const [toast, setToast] = useState<string | null>(null);
   const [matchAnimation, setMatchAnimation] = useState<string | null>(null);
   const [modalTab, setModalTab] = useState<'leaderboard' | 'spin' | null>(null);
+  const [pendingPurchase, setPendingPurchase] = useState<PowerUpType | null>(null);
 
   // === 响应式容器宽度与高度 ===
   const [containerWidth, setContainerWidth] = useState(() => Math.min(typeof window !== 'undefined' ? window.innerWidth - 20 : 400, 400));
@@ -266,13 +268,9 @@ export default function GameBoard() {
     if (!publicKey || !connection) return;
     let mounted = true;
     const refresh = async () => {
-      const [solResult, skrResult] = await Promise.allSettled([
-        getWalletBalance(connection, publicKey),
-        getSkrBalance(connection, publicKey),
-      ]);
+      const skrResult = await getSkrBalance(connection, publicKey);
       if (!mounted) return;
-      if (solResult.status === 'fulfilled') setBalance(solResult.value);
-      if (skrResult.status === 'fulfilled') setSkrBalance(skrResult.value);
+      setSkrBalance(skrResult);
     };
     refresh();
     const interval = setInterval(refresh, 15_000);
@@ -318,7 +316,7 @@ export default function GameBoard() {
       // 尝试链上 memo 记录（静默失败，完全不阻塞）
       if (signTransaction) {
         saveProgressOnChain(connection, publicKey, signTransaction, level)
-          .then(() => showToast('✅ Progress saved on-chain!'))
+          .then(() => showToast('Progress saved on-chain'))
           .catch(() => { /* 链上记录失败不影响游戏 */ });
       }
     });
@@ -373,36 +371,15 @@ export default function GameBoard() {
     [blocks, slots],
   );
 
-  // ============ 使用道具（优先免费库存 → 链上付费） ============
-  const handlePowerUp = useCallback(
+  const completePowerUpPurchase = useCallback(
     async (type: PowerUpType) => {
-      if (gameStatus !== 'playing') return;
-
-      // 先检查免费库存
-      if (walletAddress && useFromInventory(walletAddress, type)) {
-        applyPowerUp(type);
-        setInventory(getInventory(walletAddress));
-        syncPlayerToServer(walletAddress, displayName);
-        showToast(`✅ Used free power-up!`);
-        return;
-      }
-
-      // 免费库存用完，需要链上付费
-      if (!publicKey || !signTransaction) {
-        showToast('⚠️ Guest mode cannot use on-chain items');
-        return;
-      }
-
+      if (!publicKey || !signTransaction || !walletAddress) return;
       const price = POWERUP_PRICES[type];
-      if (skrBalance < price) {
-        showToast(`❌ Insufficient SKR. Need ${price} $SKR`);
-        return;
-      }
 
       setTxLoading(true);
       try {
         await sendSkrPayment(connection, publicKey, signTransaction, type, level);
-        showToast(`✅ Purchased! Spent ${price} $SKR`);
+        showToast(`Purchased. Spent ${price} $SKR`);
 
         // 购买的道具入库（不立即使用，显示在库存中）
         addToInventory(walletAddress, type);
@@ -410,20 +387,47 @@ export default function GameBoard() {
         syncPlayerToServer(walletAddress, displayName);
 
         // 刷新余额
-        const [newSol, newSkr] = await Promise.allSettled([
-          getWalletBalance(connection, publicKey),
-          getSkrBalance(connection, publicKey),
-        ]);
-        if (newSol.status === 'fulfilled') setBalance(newSol.value);
-        if (newSkr.status === 'fulfilled') setSkrBalance(newSkr.value);
+        setSkrBalance(await getSkrBalance(connection, publicKey));
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : 'Payment failed';
-        showToast(`❌ ${msg}`);
+        showToast(`${msg}`);
       } finally {
         setTxLoading(false);
+        setPendingPurchase(null);
       }
     },
-    [gameStatus, publicKey, signTransaction, connection, balance, skrBalance, level, walletAddress, applyPowerUp, showToast],
+    [publicKey, signTransaction, walletAddress, connection, level, displayName, showToast],
+  );
+
+  // ============ 使用道具（优先免费库存 → 链上付费） ============
+  const handlePowerUp = useCallback(
+    async (type: PowerUpType) => {
+      if (gameStatus !== 'playing') return;
+
+      // 先检查免费库存
+      if (walletAddress && consumeInventoryItem(walletAddress, type)) {
+        applyPowerUp(type);
+        setInventory(getInventory(walletAddress));
+        syncPlayerToServer(walletAddress, displayName);
+        showToast('Used free power-up');
+        return;
+      }
+
+      // 免费库存用完，需要链上付费
+      if (!publicKey || !signTransaction) {
+        showToast('Guest mode cannot use on-chain items');
+        return;
+      }
+
+      const price = POWERUP_PRICES[type];
+      if (skrBalance < price) {
+        showToast(`Insufficient SKR. Need ${price} $SKR`);
+        return;
+      }
+
+      setPendingPurchase(type);
+    },
+    [gameStatus, publicKey, signTransaction, skrBalance, walletAddress, applyPowerUp, displayName, showToast],
   );
 
   // ============ 转盘奖励回调 ============
@@ -431,7 +435,7 @@ export default function GameBoard() {
     (reward: SpinReward) => {
       if (reward.type !== 'none') {
         setInventory(getInventory(walletAddress));
-        showToast(`🎉 Got ${reward.label} ×1!`);
+        showToast(`Got ${reward.label} x1`);
       }
     },
     [walletAddress, showToast],
@@ -543,7 +547,7 @@ export default function GameBoard() {
         >
           <div className="absolute inset-0 bg-gradient-to-t from-[#f59e0b]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <Gift size={22} className="text-[#f59e0b] drop-shadow-[0_0_6px_rgba(245,158,11,0.5)] mb-0.5" />
-          <span className="text-[13px] font-black text-[#e0e6f0] tracking-wide">Daily Spin</span>
+          <span className="text-[13px] font-black text-[#e0e6f0] tracking-wide">Daily Bonus</span>
           <span className="text-[10px] font-semibold text-[#f59e0b] tracking-widest">FREE</span>
         </button>
 
@@ -838,6 +842,111 @@ export default function GameBoard() {
         onSpinReward={handleSpinReward}
       />
 
+      <PurchaseConfirmModal
+        item={pendingPurchase}
+        loading={txLoading}
+        onCancel={() => setPendingPurchase(null)}
+        onConfirm={() => {
+          if (pendingPurchase) void completePowerUpPurchase(pendingPurchase);
+        }}
+      />
+
+    </div>
+  );
+}
+
+const POWERUP_LABELS: Record<PowerUpType, string> = {
+  remove3: 'Remove',
+  undo: 'Undo',
+  shuffle: 'Shuffle',
+};
+
+function PurchaseConfirmModal({
+  item,
+  loading,
+  onCancel,
+  onConfirm,
+}: {
+  item: PowerUpType | null;
+  loading: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  if (!item) return null;
+
+  const price = POWERUP_PRICES[item];
+  const receiver = SKR_RECEIVER.toBase58();
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.82)', backdropFilter: 'blur(10px)' }}>
+      <div
+        className="w-full max-w-[360px] rounded-3xl p-5 animate-modal-pop"
+        style={{
+          background: 'linear-gradient(180deg, rgba(15,23,42,0.98) 0%, rgba(10,14,26,0.99) 100%)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          boxShadow: '0 24px 60px rgba(0,0,0,0.6)',
+        }}
+      >
+        <div className="flex items-start justify-between gap-3 pb-4 border-b border-white/5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-[#f59e0b]/10 border border-[#f59e0b]/20">
+              <AlertTriangle size={20} className="text-[#f59e0b]" />
+            </div>
+            <div>
+              <h2 className="text-lg font-black text-[#e0e6f0]">Confirm Purchase</h2>
+              <p className="text-xs text-[#64748b] mt-0.5">Wallet approval required</p>
+            </div>
+          </div>
+          <button
+            onClick={onCancel}
+            disabled={loading}
+            className="p-2 rounded-xl text-[#475569] hover:text-white hover:bg-white/10 transition disabled:opacity-40"
+            title="Cancel"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="py-4 space-y-2 text-sm">
+          <PurchaseRow label="Item" value={POWERUP_LABELS[item]} />
+          <PurchaseRow label="Amount" value={`${price} SKR`} />
+          <PurchaseRow label="Network" value="Solana Mainnet" />
+          <PurchaseRow label="Receiver" value={`${receiver.slice(0, 6)}...${receiver.slice(-6)}`} mono />
+          <div className="mt-4 rounded-2xl p-3 bg-[#f59e0b]/8 border border-[#f59e0b]/20 text-[#fcd34d] text-xs leading-relaxed">
+            This is a non-refundable on-chain token transfer for an in-game
+            power-up. Check the wallet transaction details before signing.
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={onCancel}
+            disabled={loading}
+            className="rounded-xl px-4 py-3 bg-white/[0.04] border border-white/[0.08] text-[#e0e6f0] font-bold disabled:opacity-40"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className="skr-btn flex items-center justify-center gap-2 px-4 py-3 disabled:opacity-40"
+          >
+            {loading && <Loader2 size={16} className="animate-spin" />}
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PurchaseRow({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-xl px-3 py-2 bg-white/[0.03] border border-white/[0.06]">
+      <span className="text-[#64748b]">{label}</span>
+      <span className={`text-[#e0e6f0] font-bold text-right truncate ${mono ? 'font-mono text-xs' : ''}`}>
+        {value}
+      </span>
     </div>
   );
 }

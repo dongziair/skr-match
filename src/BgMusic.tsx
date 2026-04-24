@@ -229,7 +229,7 @@ export default function BgMusic() {
     // 设置在开启时默认开始播放
     try {
       startMusic();
-    } catch (e) {
+    } catch {
       // 忽略直接启动失败
     }
 

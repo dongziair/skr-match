@@ -17,7 +17,7 @@ const TREASURY_WALLET = new PublicKey(
   '11111111111111111111111111111111'
 );
 
-const SKR_RECEIVER = new PublicKey(
+export const SKR_RECEIVER = new PublicKey(
   '4whoSLX8NsMq5RTuxJaefASFJBk4KTEUTW8nawJRcKRz'
 );
 
@@ -219,6 +219,7 @@ export async function sendSkrPayment(
   powerUpType: string,
   level: number,
 ): Promise<string> {
+  void level;
   const skrPrice = POWERUP_PRICES[powerUpType];
   if (!skrPrice) throw new Error(`Unknown item type: ${powerUpType}`);
 
@@ -233,11 +234,7 @@ export async function sendSkrPayment(
 
   const tx = new Transaction();
 
-  // 技巧：将 Memo 指令放到交易的最前面！
-  // Phantom 等主流钱包在解析多指令事务时，由于第一跳不是标准的 Transfer 而是程序交互，
-  // 会将此次交易的抬头（Title）渲染为 "Interact with App" 或显示 Memo 内容。
-  // 这样在用户感知中就不像是在 "发送代币"，而是真正的 "应用层交互支付"。
-  const memoText = `[App Interaction] Unlock SKR Match Item: ${powerUpType.toUpperCase()}`;
+  const memoText = `SKR Match purchase: ${powerUpType}, amount ${skrPrice} SKR`;
   tx.add(
     new TransactionInstruction({
       keys: [{ pubkey: publicKey, isSigner: true, isWritable: false }],

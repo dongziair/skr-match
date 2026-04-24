@@ -4,12 +4,14 @@
  */
 
 import { useState, useEffect } from 'react';
-import { X, Crown, Gift, Loader2 } from 'lucide-react';
+import { X, Crown, Gift, Loader2, Flag, EyeOff } from 'lucide-react';
 import {
   getLeaderboard,
   fetchServerLeaderboard,
   doSpin,
   canSpin,
+  hideLeaderboardPlayer,
+  reportLeaderboardPlayer,
   SPIN_REWARDS,
   type SpinReward,
   type LeaderboardEntry,
@@ -28,6 +30,7 @@ export default function GameModal({ visible, onClose, wallet, initialTab, onSpin
   const [spinResult, setSpinResult] = useState<SpinReward | null>(null);
   const [spinAngle, setSpinAngle] = useState(0);
   const [spinStatus, setSpinStatus] = useState(canSpin(wallet));
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!visible) return;
@@ -46,6 +49,7 @@ export default function GameModal({ visible, onClose, wallet, initialTab, onSpin
   // 每次弹窗打开时重置转盘结果
   useEffect(() => {
     if (visible) setSpinResult(null);
+    setStatusMessage(null);
   }, [visible]);
 
   // 排行榜：优先从服务器获取，fallback 到 localStorage
@@ -58,6 +62,23 @@ export default function GameModal({ visible, onClose, wallet, initialTab, onSpin
       else setLeaderboard(getLeaderboard());
     });
   }, [visible, initialTab]);
+
+  const handleHidePlayer = (entry: LeaderboardEntry) => {
+    hideLeaderboardPlayer(entry.wallet);
+    setLeaderboard(prev => prev.filter(item => item.wallet !== entry.wallet));
+    setStatusMessage('Player hidden on this device.');
+  };
+
+  const handleReportPlayer = async (entry: LeaderboardEntry) => {
+    try {
+      await reportLeaderboardPlayer(wallet, entry.wallet, entry.displayName);
+      hideLeaderboardPlayer(entry.wallet);
+      setLeaderboard(prev => prev.filter(item => item.wallet !== entry.wallet));
+      setStatusMessage('Report sent. Player hidden on this device.');
+    } catch {
+      setStatusMessage('Could not send report. Please try again later.');
+    }
+  };
 
   const handleSpin = () => {
     if (spinning || !spinStatus.allowed) return;
@@ -143,7 +164,7 @@ export default function GameModal({ visible, onClose, wallet, initialTab, onSpin
                 >
                   <Gift size={16} className="text-[#0a0e1a]" />
                 </div>
-                <span className="text-base font-bold text-[#e0e6f0]">Daily Spin</span>
+                <span className="text-base font-bold text-[#e0e6f0]">Daily Bonus</span>
               </>
             )}
           </div>
@@ -166,6 +187,11 @@ export default function GameModal({ visible, onClose, wallet, initialTab, onSpin
               </div>
             ) : (
               <div className="px-4 py-3 space-y-2">
+                {statusMessage && (
+                  <div className="text-[11px] text-[#00ffaa] px-3 py-2 rounded-lg bg-[#00ffaa]/5 border border-[#00ffaa]/10">
+                    {statusMessage}
+                  </div>
+                )}
                 {leaderboard.map((entry, i) => {
                   const rankColors = [
                     { bg: 'rgba(255,215,0,0.08)', border: 'rgba(255,215,0,0.2)', glow: 'rgba(255,215,0,0.1)' },
@@ -196,6 +222,24 @@ export default function GameModal({ visible, onClose, wallet, initialTab, onSpin
                         <p className="text-sm font-semibold text-[#e0e6f0] truncate">{entry.displayName}</p>
                       </div>
                       <p className="text-base font-black text-[#00ffaa] neon-text flex-shrink-0">Lv.{entry.level}</p>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => handleReportPlayer(entry)}
+                          className="p-1.5 rounded-lg text-[#64748b] hover:text-[#f59e0b] hover:bg-white/5 transition"
+                          title="Report inappropriate name"
+                        >
+                          <Flag size={13} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleHidePlayer(entry)}
+                          className="p-1.5 rounded-lg text-[#64748b] hover:text-[#e0e6f0] hover:bg-white/5 transition"
+                          title="Hide this player"
+                        >
+                          <EyeOff size={13} />
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
@@ -277,7 +321,7 @@ export default function GameModal({ visible, onClose, wallet, initialTab, onSpin
                   );
                 })}
                 <circle cx="100" cy="100" r="20" fill="#0f172a" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
-                <text x="100" y="100" textAnchor="middle" dominantBaseline="middle" fontSize="16">🎰</text>
+                <text x="100" y="100" textAnchor="middle" dominantBaseline="middle" fontSize="13" fill="#e0e6f0" fontWeight="bold">SKR</text>
               </svg>
             </div>
 
@@ -289,8 +333,8 @@ export default function GameModal({ visible, onClose, wallet, initialTab, onSpin
               >
                 <p className="text-base font-bold text-[#e0e6f0]">
                   {spinResult.type === 'none'
-                    ? '😅 Better luck next time!'
-                    : <span>🎉 Got <span className="text-[#00ffaa] neon-text">{spinResult.label}</span> !</span>
+                    ? 'Better luck next time!'
+                    : <span>Got <span className="text-[#00ffaa] neon-text">{spinResult.label}</span></span>
                   }
                 </p>
                 {spinResult.type !== 'none' && (
@@ -306,16 +350,16 @@ export default function GameModal({ visible, onClose, wallet, initialTab, onSpin
               className="skr-btn flex items-center gap-2 px-8 py-3 w-full justify-center disabled:opacity-40"
             >
               {spinning ? (
-                <><Loader2 size={18} className="animate-spin" /> Spinning...</>
+                <><Loader2 size={18} className="animate-spin" /> Opening...</>
               ) : spinStatus.allowed ? (
-                <><Gift size={18} /> Free Spin</>
+                <><Gift size={18} /> Free Bonus</>
               ) : (
                 `${formatCooldown(spinStatus.remainingMs)} cooldown`
               )}
             </button>
 
             <p className="text-[10px] text-[#334155] text-center">
-              1 free spin every 24h · Win power-ups
+              1 free in-game bonus every 24h. No cash value.
             </p>
           </div>
         )}

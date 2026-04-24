@@ -155,7 +155,6 @@ export default function AdminPanel({ visible, onClose }: Props) {
               {players.map((p, idx) => {
                 const hasDomain = !p.displayName.includes('...');
                 const shortWallet = `${p.wallet.slice(0, 4)}...${p.wallet.slice(-4)}`;
-                const totalItems = p.inventory.remove3 + p.inventory.undo + p.inventory.shuffle;
 
                 return (
                   <div

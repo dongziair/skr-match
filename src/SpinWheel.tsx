@@ -63,7 +63,7 @@ export default function SpinWheel({ visible, onClose, wallet, onReward }: Props)
         <div className="flex items-center justify-between w-full mb-5">
           <div className="flex items-center gap-2.5">
             <Gift size={24} className="text-[#00cc82]" />
-            <h2 className="text-xl font-bold text-[#1a1a2e]">Daily Spin</h2>
+            <h2 className="text-xl font-bold text-[#1a1a2e]">Daily Bonus</h2>
           </div>
           <button
             onClick={onClose}
@@ -153,7 +153,7 @@ export default function SpinWheel({ visible, onClose, wallet, onReward }: Props)
               <p className="text-[#999] text-base">😕 Got nothing. Try again tomorrow!</p>
             ) : (
               <p className="text-base">
-                🎉 Got <span className="font-bold" style={{ color: result.color }}>{result.label}</span> ×1 !
+                Got <span className="font-bold" style={{ color: result.color }}>{result.label}</span> x1
               </p>
             )}
           </div>
@@ -165,11 +165,11 @@ export default function SpinWheel({ visible, onClose, wallet, onReward }: Props)
           disabled={spinning || !canSpin}
           className="skr-btn w-full px-8 py-4 text-base font-bold disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {spinning ? 'Spinning...' : !canSpin ? 'Spun Today' : 'Start Spin 🎰'}
+          {spinning ? 'Opening...' : !canSpin ? 'Claimed Today' : 'Claim Free Bonus'}
         </button>
 
         {!canSpin && !spinning && !result && (
-          <p className="text-sm text-[#999] mt-3">Spin once every 24 hours. Come back tomorrow!</p>
+          <p className="text-sm text-[#999] mt-3">One free in-game bonus every 24 hours. No cash value.</p>
         )}
       </div>
     </div>
