@@ -25,8 +25,13 @@ content.
 
 ## Submission Checklist
 
-- Provide the privacy policy URL in the dApp Store listing.
-- Provide a working support contact: `support@skr-match.app`.
+- Provide the privacy policy URL in the dApp Store listing:
+  `https://dongziair.github.io/skr-match-md/privacy.html`.
+- Provide the Terms of Use / EULA URL in the dApp Store listing:
+  `https://dongziair.github.io/skr-match-md/license.html`.
+- Make sure `https://dongziair.github.io/skr-match-md/` links to both the
+  privacy policy and the Terms of Use / EULA page.
+- Provide a working support contact: `limindong01@gmail.com`.
 - Describe paid power-ups as non-refundable in-game SKR token transfers, not
   financial products, investments, yield, cash rewards, or gambling.
 - Use content rating 13+ unless a legal review supports a lower rating.

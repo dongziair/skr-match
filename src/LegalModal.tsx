@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { ShieldCheck, Trash2, X, Mail, FileText, Loader2 } from 'lucide-react';
+import { ShieldCheck, Trash2, X, Mail, FileText, Loader2, ExternalLink, Scale } from 'lucide-react';
 import {
   clearLocalPlayerData,
   deletePlayerDataWithSignature,
@@ -12,7 +12,9 @@ interface Props {
   onClose: () => void;
 }
 
-const SUPPORT_EMAIL = 'support@skr-match.app';
+const SUPPORT_EMAIL = 'limindong01@gmail.com';
+const PRIVACY_POLICY_URL = 'https://dongziair.github.io/skr-match-md/privacy.html';
+const TERMS_OF_USE_URL = 'https://dongziair.github.io/skr-match-md/license.html';
 
 export default function LegalModal({ visible, onClose }: Props) {
   const { publicKey, disconnect, signMessage } = useWallet();
@@ -101,6 +103,37 @@ export default function LegalModal({ visible, onClose }: Props) {
               On-chain transactions are public and cannot be deleted by SKR Match.
               Server profile data and local game data can be deleted below.
             </p>
+            <a
+              className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 bg-[#00ffaa]/10 border border-[#00ffaa]/20 text-[#7dd3fc] font-bold text-xs"
+              href={PRIVACY_POLICY_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open Full Privacy Policy
+              <ExternalLink size={13} />
+            </a>
+          </div>
+
+          <div className="rounded-2xl p-4 bg-white/[0.03] border border-white/[0.06]">
+            <div className="flex items-center gap-2 text-[#e0e6f0] font-bold mb-2">
+              <Scale size={15} className="text-[#facc15]" />
+              Terms of Use / EULA
+            </div>
+            <p>
+              SKR Match is provided for personal entertainment. Optional SKR
+              token transfers are non-refundable in-game purchases for power-ups
+              only, and SKR Match does not provide investment services, yield,
+              gambling, cash prizes, or financial advice.
+            </p>
+            <a
+              className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 bg-[#facc15]/10 border border-[#facc15]/20 text-[#fde68a] font-bold text-xs"
+              href={TERMS_OF_USE_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open Terms of Use / EULA
+              <ExternalLink size={13} />
+            </a>
           </div>
 
           <div className="rounded-2xl p-4 bg-white/[0.03] border border-white/[0.06]">
