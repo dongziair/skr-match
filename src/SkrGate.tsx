@@ -192,7 +192,7 @@ const SkrGate: FC<Props> = ({ children }) => {
 
                 return (
                   <button
-                    key={adapter.name}
+                    key={adapter.name === "MwaBridge" ? "Seeker / Phantom Wallet" : adapter.name}
                     onClick={() => handleWalletSelect(adapter.name)}
                     disabled={disabled}
                     className="w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left transition"
@@ -225,6 +225,12 @@ const SkrGate: FC<Props> = ({ children }) => {
 
             {connectError && (
               <p className="text-xs text-red-400 mt-3 px-1">{connectError}</p>
+            )}
+            {availableWallets.length === 0 && (
+              <div className="mt-3 px-1">
+                <p className="text-xs text-[#64748b]">No compatible wallets found.</p>
+                <p className="text-xs text-[#00ffaa] mt-1">Install Phantom or Solflare wallet on this device first.</p>
+              </div>
             )}
           </div>
         </div>

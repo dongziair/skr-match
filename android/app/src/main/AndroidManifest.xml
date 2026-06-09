@@ -22,15 +22,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- Solana Mobile Wallet Adapter (MWA) intent filters -->
-            <!-- Required for Seeker Wallet and other MWA-compatible wallets to respond -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="solana-wallet" />
-            </intent-filter>
-
         </activity>
 
         <provider
@@ -51,4 +42,17 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
 
+
+    <!-- Allow querying for MWA-compatible wallets on Android 11+ -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="solana-wallet" />
+        </intent>
+        <!-- Explicit package queries for known MWA-compatible wallets -->
+        <package android:name="app.phantom.mobile" />
+        <package android:name="com.solflare.mobile" />
+        <package android:name="com.seeker.wallet" />
+        <package android:name="com.trustwallet.app" />
+    </queries>
 </manifest>

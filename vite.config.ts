@@ -111,7 +111,7 @@ function playerApiPlugin(): Plugin {
 }
 
 export default defineConfig({
-  base: './',
+  base: '/',
   plugins: [
     playerApiPlugin(),
     nodePolyfills({
@@ -127,6 +127,8 @@ export default defineConfig({
         name: 'Solana Match',
         short_name: 'SKR Match',
         description: 'A Web3 puzzle game on Solana',
+        start_url: '/',
+        scope: '/',
         theme_color: '#0f172a',
         background_color: '#0f172a',
         display: 'standalone',

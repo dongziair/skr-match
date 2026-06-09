@@ -4,13 +4,10 @@ import {
   WalletProvider,
 } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-import type { Adapter } from '@solana/wallet-adapter-base';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
 import { BackpackWalletAdapter } from '@solana/wallet-adapter-backpack';
-import { MwaBridgeWalletAdapter } from './MwaWalletAdapter';
-import { Capacitor } from '@capacitor/core';
 
 import '@solana/wallet-adapter-react-ui/styles.css';
 
@@ -24,30 +21,19 @@ const RPC_POOL = [
 
 // 页面加载时随机选择一个主节点挂载到 Context（支持钱包插件注入）
 const getDynamicEndpoint = () => RPC_POOL[Math.floor(Math.random() * RPC_POOL.length)];
-const NETWORK = 'mainnet-beta';
 
 interface Props {
   children: ReactNode;
 }
 
 const WalletContextProvider: FC<Props> = ({ children }) => {
-  const isNative = Capacitor.isNativePlatform();
-
   const wallets = useMemo(
-    () => {
-      const adapters: Adapter[] = [
-        new PhantomWalletAdapter(),
-        new SolflareWalletAdapter({ network: WalletAdapterNetwork.Mainnet }),
-        new BackpackWalletAdapter(),
-      ];
-
-      if (isNative) {
-        adapters.unshift(new MwaBridgeWalletAdapter({ network: WalletAdapterNetwork.Mainnet }));
-      }
-
-      return adapters;
-    },
-    [isNative],
+    () => [
+      new PhantomWalletAdapter(),
+      new SolflareWalletAdapter({ network: WalletAdapterNetwork.Mainnet }),
+      new BackpackWalletAdapter(),
+    ],
+    [],
   );
 
   const endpoint = useMemo(() => getDynamicEndpoint(), []);
