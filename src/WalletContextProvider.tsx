@@ -4,16 +4,13 @@ import {
   WalletProvider,
 } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
+import type { Adapter } from '@solana/wallet-adapter-base';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
 import { BackpackWalletAdapter } from '@solana/wallet-adapter-backpack';
-import {
-  SolanaMobileWalletAdapter,
-  createDefaultAddressSelector,
-  createDefaultAuthorizationResultCache,
-  createDefaultWalletNotFoundHandler,
-} from '@solana-mobile/wallet-adapter-mobile';
+import { MwaBridgeWalletAdapter } from './MwaWalletAdapter';
+import { Capacitor } from '@capacitor/core';
 
 import '@solana/wallet-adapter-react-ui/styles.css';
 
@@ -34,24 +31,23 @@ interface Props {
 }
 
 const WalletContextProvider: FC<Props> = ({ children }) => {
+  const isNative = Capacitor.isNativePlatform();
+
   const wallets = useMemo(
-    () => [
-      new PhantomWalletAdapter(),
-      new SolflareWalletAdapter({ network: WalletAdapterNetwork.Mainnet }),
-      new BackpackWalletAdapter(),
-      new SolanaMobileWalletAdapter({
-        appIdentity: {
-          name: 'SKR Match',
-          uri: typeof window !== 'undefined' ? window.location.origin : 'https://skr-match.app',
-          icon: '/favicon.svg',
-        },
-        addressSelector: createDefaultAddressSelector(),
-        authorizationResultCache: createDefaultAuthorizationResultCache(),
-        chain: `solana:${NETWORK}`,
-        onWalletNotFound: createDefaultWalletNotFoundHandler(),
-      }),
-    ],
-    [],
+    () => {
+      const adapters: Adapter[] = [
+        new PhantomWalletAdapter(),
+        new SolflareWalletAdapter({ network: WalletAdapterNetwork.Mainnet }),
+        new BackpackWalletAdapter(),
+      ];
+
+      if (isNative) {
+        adapters.unshift(new MwaBridgeWalletAdapter({ network: WalletAdapterNetwork.Mainnet }));
+      }
+
+      return adapters;
+    },
+    [isNative],
   );
 
   const endpoint = useMemo(() => getDynamicEndpoint(), []);

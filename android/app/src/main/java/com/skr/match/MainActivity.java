@@ -2,4 +2,6 @@ package com.skr.match;
 
 import com.getcapacitor.BridgeActivity;
 
-public class MainActivity extends BridgeActivity {}
+public class MainActivity extends BridgeActivity {
+    // MwaBridgePlugin is auto-registered via @CapacitorPlugin annotation
+}
